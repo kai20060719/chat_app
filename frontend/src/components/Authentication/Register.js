@@ -47,7 +47,7 @@ const Register = () => {
             </Box>
             <Button
                 width="100%"
-                stytle={{ marginTop: 15}}
+                style={{ marginTop: 15}}
                 onClick={submitHandler}
                 >
                 회원가입
