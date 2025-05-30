@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+/*import React, { useEffect } from 'react'
 import axios from 'axios'
 
 const [chats, setchats] = useState([])
@@ -21,3 +21,4 @@ const Chatpage = () => {
 }
 
 export default chatpage
+*/
