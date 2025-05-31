@@ -1,10 +1,19 @@
 'use client'
 
-import { ClientOnly, IconButton, Skeleton, Span } from '@chakra-ui/react'
+import {  IconButton, Skeleton } from '@chakra-ui/react'
+
 import { ThemeProvider, useTheme } from 'next-themes'
 
 import * as React from 'react'
 import { LuMoon, LuSun } from 'react-icons/lu'
+
+function ClientOnly({ children, fallback = null }) {
+  const [hasMounted, setHasMounted] = React.useState(false);
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+  return hasMounted ? children : fallback;
+}
 
 export function ColorModeProvider(props) {
   return (
@@ -63,12 +72,11 @@ export const ColorModeButton = React.forwardRef(
 
 export const LightMode = React.forwardRef(function LightMode(props, ref) {
   return (
-    <Span
-      color='fg'
-      display='contents'
+    <span
+      style={{ color: 'fg', display: 'contents' }}
       className='chakra-theme light'
-      colorPalette='gray'
-      colorScheme='light'
+      data-color-palette='gray'
+      data-color-scheme='light'
       ref={ref}
       {...props}
     />
@@ -77,12 +85,11 @@ export const LightMode = React.forwardRef(function LightMode(props, ref) {
 
 export const DarkMode = React.forwardRef(function DarkMode(props, ref) {
   return (
-    <Span
-      color='fg'
-      display='contents'
+    <span
+      style={{ color: 'fg', display: 'contents' }}
       className='chakra-theme dark'
-      colorPalette='gray'
-      colorScheme='dark'
+      data-color-palette='gray'
+      data-color-scheme='dark'
       ref={ref}
       {...props}
     />

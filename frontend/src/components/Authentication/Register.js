@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { Button ,VStack, Input, Box, Text,InputGroup} from '@chakra-ui/react';
-import { toaster } from "../../ui/toaster";
+import { useToast } from '@chakra-ui/react';
 import axios from 'axios';
 import {useHistory} from "react-router-dom";
 
@@ -12,11 +12,12 @@ const Register = () => {
     const [show,setShow] = useState(false)
     const [loading,setLoading] = useState(false)
     const history = useHistory();
+    const toast = useToast();
 
     const postDetails=(pics)=>{
         setLoading(true);
         if(pics===undefined){
-            toaster.create({
+            toast({
                 title: "사진을 선택해주세요",
                 status: "warning",
                 duration: 5000,
@@ -41,7 +42,7 @@ const Register = () => {
               })
         }
         else{
-            toaster.create({
+            toast({
                 title: "사진을 선택해주세요",
                 status: "warning",
                 duration: 5000,
@@ -56,7 +57,7 @@ const Register = () => {
     const submitHandler= async ()=>{
         setLoading(true);
         if(!name || !password){
-            toaster.create({
+            toast({
                 title: "항목을 다 채워주세요",
                 status: "warning",
                 duration: 5000,
@@ -75,7 +76,7 @@ const Register = () => {
             const { data} = await axios.post("/api/user",{name,password,pic},
                 config
             );
-            toaster.create({
+            toast({
                 title: "회원가입 성공",
                 status: "success",
                 duration: 5000,
@@ -87,7 +88,7 @@ const Register = () => {
               history.push("./chats")
         }
         catch(error){
-            toaster.create({
+            toast({
                 title: "에러 발생",
                 description: error.response.data.message,
                 status: "warning",
