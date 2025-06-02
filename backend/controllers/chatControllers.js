@@ -125,7 +125,7 @@ const renameGroup = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("해당 단체 채팅방을 존재하지 않습니다다")
     }else{
-        res.json(updatedChat);
+        res.status(200).json(updatedChat);
     }
 });
 

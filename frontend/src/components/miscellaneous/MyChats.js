@@ -5,8 +5,9 @@ import axios from 'axios';
 import { AddIcon } from '@chakra-ui/icons';
 import ChatLoading from '../ChatLoading';
 import { getSender } from '../../config/ChatLogics';
+import GroupChatModal from './GroupChatModal';
 
-const ChatBox = () => {
+const ChatBox = ({fetchAgain}) => {
   const [loggedUser, setLoggedUser] = useState();
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
   const toast = useToast();
@@ -36,11 +37,11 @@ const ChatBox = () => {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <Box
-    display={{ base:"flex", md: "flex" }}
+      display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
       flexDir="column"
       alignItems="center"
       p={3}
@@ -59,6 +60,7 @@ const ChatBox = () => {
         alignItems="center"
       >
         대화 목록
+        <GroupChatModal>
         <Button
           display="flex"
           fontSize={{ base: "17px", md: "10px", lg: "17px" }}
@@ -66,6 +68,7 @@ const ChatBox = () => {
         >
           새 대화
         </Button>
+        </GroupChatModal>
       </Box>
       <Box
       display="flex"
