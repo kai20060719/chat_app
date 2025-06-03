@@ -4,6 +4,7 @@ import {
   Drawer, useDisclosure, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody,
   Input,useToast,
   Spinner, 
+  Badge
 } from '@chakra-ui/react'
 import { BellIcon , ChevronDownIcon} from '@chakra-ui/icons';
 import {ChatState} from "../../Context/ChatProvider";
@@ -12,13 +13,15 @@ import {useHistory} from "react-router-dom"
 import axios from 'axios';
 import ChatLoading from '../ChatLoading';
 import UserListItem from '../UserAvatar/UserListItem';
+import { getSender } from '../../config/ChatLogics';
+import NotificationBadge, { Effect } from 'react-notification-badge';
 
 const SideDrawer = () => {
     const [search, setSearch] = useState("");
     const [searchResult, setSearchResult] = useState([]);
     const [loading, setLoading] = useState(false);
     const [loadingChat, setLoadingChat] = useState();
-    const { user , setSelectedChat,chats, setChats} = ChatState();
+    const { user , setSelectedChat,chats, setChats,notification, setNotification} = ChatState();
     const history = useHistory();
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -122,10 +125,32 @@ const SideDrawer = () => {
         <Text fontSize="2xl" >채팅 앱</Text>
         <div>
             <Menu>
-                <MenuButton p={1}>
+                <MenuButton p={1} position="relative">
+                    <Badge
+                        colorScheme="red"
+                        borderRadius="full"
+                        position="absolute"
+                        top="-2px"
+                        right="-2px"
+                        fontSize="0.8em"
+                        zIndex="1"
+                        display={notification.length ? "inline" : "none"}
+                    >
+                        {notification.length}
+                    </Badge>
                 <BellIcon fontSize="2xl" m={1}/>
                 </MenuButton>
-                <MenuList></MenuList>
+                <MenuList>
+                    {notification.length === 0 && "알림 없음"}
+                    {notification.map((notif) => (
+                        <MenuItem key={notif._id} onClick={() => {
+                            setSelectedChat(notif.chat);
+                            setNotification(notification.filter((n) => n !== notif));
+                        }}>
+                            {notif.chat.isGroupChat ? `새 그룹 메시지: ${notif.chat.chatName}` : `새 메시지: ${getSender(user, notif.chat.users)}`}
+                        </MenuItem>
+                    ))}
+                </MenuList>
             </Menu>
             <Menu>
                 <MenuButton 
