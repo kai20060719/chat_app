@@ -1,15 +1,128 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChatState } from "../Context/ChatProvider";
-import { Box, Icon, IconButton, Text } from '@chakra-ui/react';
+import { Box, FormControl, Icon, IconButton, Input, Spinner, Text, useToast } from '@chakra-ui/react';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { getSender, getSenderFull } from '../config/ChatLogics';
 import ProfileModal from './miscellaneous/ProfileModal';
 import UpdateGroupChatModal from './miscellaneous/UpdateGroupChatModal';
-
+import axios from 'axios';
+import "./UserAvatar/styles.css"; 
+import ScrollableChat from './ScrollableChat';
 
 
 const SingleChat = ({fetchAgain, setFetchAgain}) => {
     const { user, selectedChat, setSelectedChat } = ChatState();
+
+    const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [newMessage, setNewMessage] = useState("");
+
+    const toast = useToast();
+
+    const fetchMessages = async () => {
+        if (!selectedChat) return;
+
+        try {
+          const config = {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          };
+          setLoading(true);
+          const { data } = await axios.get(`/api/message/${selectedChat._id}`, config);
+          console.log(messages);
+          setMessages(data);
+          console.log(data); // ← 이렇게 해야 새로 받아온 메시지 목록이 콘솔에 찍힘
+          setLoading(false);
+
+        } catch (error) {
+          toast({
+            title: "에러 발생!",
+            description: "메시지 불러오기 실패",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
+          setLoading(false);
+
+          
+        }
+
+
+
+    }
+    useEffect(() => {
+      fetchMessages();
+    }, [selectedChat]);
+    
+    const sendMessage = async(event) => {
+        if (event.key === "Enter" && newMessage) {
+          try {
+            const config = {
+              headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${user.token}`,
+              },
+            };
+            setNewMessage("");
+            const { data } = await axios.post("/api/message", {
+              content: newMessage,
+              chatId: selectedChat._id,
+            }, config);
+
+            console.log(data);
+
+            
+            setMessages([...messages, data]);
+          } catch (error) {
+            toast({
+              title: "에러 발생생!",
+              description: "메세지 전송에 실패했습니다.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "bottom",
+            });
+            
+          }
+        }
+    };
+    
+    const typingHandler = (e) => {
+      setNewMessage(e.target.value);
+    };
+
+    useEffect(() => {
+      const fetchMessages = async () => {
+        if (!selectedChat) return;
+        setLoading(true);
+        try {
+          const config = {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          };
+          const { data } = await axios.get(`/api/message/${selectedChat._id}`, config);
+          setMessages(data);
+          setLoading(false);
+        } catch (error) {
+          toast({
+            title: "메시지 불러오기 실패",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
+          setLoading(false);
+        }
+      };
+
+      fetchMessages();
+    }, [selectedChat]);
+
+
+
     return (
       <>
       {selectedChat ? (
@@ -36,7 +149,10 @@ const SingleChat = ({fetchAgain, setFetchAgain}) => {
           ) : (
             <>
               {selectedChat.chatName.toUpperCase()}
-              <UpdateGroupChatModal fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}/>
+              <UpdateGroupChatModal 
+              fetchAgain={fetchAgain} 
+              setFetchAgain={setFetchAgain}
+              fetchMessages = {fetchMessages}/>
             </>
           )}
 
@@ -52,7 +168,32 @@ const SingleChat = ({fetchAgain, setFetchAgain}) => {
         borderRadius="lg"
         overflowY="hidden"
         >
-          message area
+          {loading ? (
+          <Spinner
+          size="xl"
+          w={20}
+          h={20}
+          alignSelf="center"
+          margin="auto"
+          />):(
+            <div className='messages'>
+            <ScrollableChat messages={messages} />
+          
+          </div>)}
+          <FormControl 
+          onKeyDown={sendMessage}
+          isRequired
+          mt={3}>
+            <Input
+            variant={"filled"}
+            bg="#E0E0E0"
+            placeholder="메세지를 입력하시오"
+            onChange={typingHandler}
+            value={newMessage}
+            />
+            
+          </FormControl>
+          
         </Box>
         </>
       ) : (
@@ -70,5 +211,6 @@ const SingleChat = ({fetchAgain, setFetchAgain}) => {
       </>
     )
 }
+
 
 export default SingleChat

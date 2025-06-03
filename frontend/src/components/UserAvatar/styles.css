@@ -1,0 +1,7 @@
+.messages {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;      /* scroll 대신 auto 권장 */
+    height: 400px;         /* 원하는 고정 높이로 지정 (예: 400px) */
+    scrollbar-width: none;
+}
